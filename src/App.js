@@ -5,8 +5,13 @@ import {
   Navbar,
   NavbarBrand,
 } from 'reactstrap';
+// import {base64} from 'base'
 
 class App extends Component {
+  currentScreen() {
+
+  }
+
   render() {
     return (
       <div className="container-fluid">
@@ -20,6 +25,7 @@ class App extends Component {
 }
 
 class Header extends Component {
+
   render() {
     return (
       <div>
@@ -38,12 +44,48 @@ class TopicList extends Component {
 
     // TODO: load topics from backend
     this.state = {
-      topics: [
-        { name: 'topic1', description: 'This is some sample description text that describes Topic1' },
-        { name: 'topic2', description: 'This is some sample description text that describes Topic2' },
-        { name: 'topic3', description: 'This is some sample description text that describes Topic3' },
-      ]
+      error: null,
+      isLoaded: false,
+      topics: []
+      // topics: [
+      //   { name: 'Topic1', description: 'This is some sample description text that describes Topic1' },
+      //   { name: 'Topic2', description: 'This is some sample description text that describes Topic2' },
+      //   { name: 'Topic3', description: 'This is some sample description text that describes Topic3' },
+      // ]
     }
+  }
+
+  componentDidMount() {
+    // let base64 = require('base-64');
+    let username = 'admin';
+    let password = 'qwedsa@123';
+
+    let headers = new Headers();
+
+    headers.append('Content-Type', 'application/json');
+    headers.append('Accept', 'application/json; indent=4');
+    headers.append('Authorization', 'Basic ' + btoa(username + ":" + password));
+    fetch("http://localhost:8000/topics/", { method: 'GET', headers: headers })
+      .then((response) => {
+        // console.log(response.json());
+        return response.json();
+      })
+      .then(
+        (result) => {
+          console.log(result);
+
+          this.setState({
+            isLoaded: true,
+            topics: result
+          });
+        },
+        (error) => {
+          this.setState({
+            isLoaded: true,
+            error
+          });
+        }
+      )
   }
 
   topicCards() {
@@ -54,12 +96,19 @@ class TopicList extends Component {
   }
 
   render() {
-    return (
-      <div className="container topic-list">
-        <div className="display-4">Topics</div>
-        {this.topicCards()}
-      </div>
-    );
+    const { error, isLoaded, topics } = this.state;
+    if (error) {
+      return <div>Error: {error.message}</div>;
+    } else if (!isLoaded) {
+      return <div>Loading...</div>;
+    } else {
+      return (
+        <div className="container topic-list">
+          <div className="display-4">Topics</div>
+          {this.topicCards()}
+        </div>
+      );
+    }
   }
 }
 
