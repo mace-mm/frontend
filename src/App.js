@@ -1,137 +1,97 @@
 import React, { Component } from 'react';
 // import logo from './logo.svg';
 // import './App.css';
-import {
-  Navbar,
-  NavbarBrand,
-} from 'reactstrap';
-// import {base64} from 'base'
+// import {
+//   Navbar,
+//   NavbarBrand,
+// } from 'reactstrap';
+import TopicList from './TopicList'
+import Topic from './Topic'
 
 class App extends Component {
-  currentScreen() {
+  constructor(props) {
+    super(props);
+    this.state = {
+      currentTopic: null,
+      currentPage: "TOPIC",
+    };
+  }
 
+  setCurrentTopic(topic) {
+    this.setState({
+      currentTopic: topic,
+      currentPage: topic === null ? "TOPIC_LIST" : "TOPIC"
+    });
   }
 
   render() {
+    switch (this.state.currentPage) {
+      case "TOPIC_LIST":
+        return this.topicList();
+      case "TOPIC":
+        return this.topic();
+      default:
+        return (<p className="alert alert-danger">Argggg</p>);
+    }
+  }
+
+  topic() {
+    var props = {
+      setCurrentTopic: this.setCurrentTopic
+    };
     return (
-      <div className="container-fluid">
-        <Header />
+      <div>
         <div className="row">
-          <TopicList />
+          <Header props={props} />
         </div>
+        <div className="row">
+          <Topic props={props} />
+        </div>
+      </div>
+    );
+  }
+
+  topicList() {
+    var props = {
+      setCurrentTopic: this.setCurrentTopic
+    };
+    return (
+      <div>
+        <Header props={props} />
+        <TopicList props={props} />
       </div>
     );
   }
 }
 
 class Header extends Component {
-
   render() {
     return (
-      <div>
-        <Navbar color="primary" fixed='bottom' dark>
-          <NavbarBrand href="/">Mace: Meeting Manager</NavbarBrand>
-          <div className="navbar-text"><small>Copyright &copy; 2018 Biju Chacko</small></div>
-        </Navbar>
+      <div className="container-fluid">
+        <nav className="navbar navbar-expand-lg navbar-dark bg-dark">
+          <div className="container">
+            <a className="navbar-brand" href="/">Mace: Meeting Manager</a>
+            <button className="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarResponsive" aria-controls="navbarResponsive" aria-expanded="false" aria-label="Toggle navigation">
+              <span className="navbar-toggler-icon"></span>
+            </button>
+            <div className="collapse navbar-collapse" id="navbarResponsive">
+              <ul className="navbar-nav ml-auto">
+                <li className="nav-item active">
+                  <a className="nav-link" href="/">Topics
+                <span className="sr-only">(current)</span>
+                  </a>
+                </li>
+                <li className="nav-item">
+                  <a className="nav-link" href="/">Actions</a>
+                </li>
+              </ul>
+            </div>
+          </div>
+        </nav>
       </div>
     );
   }
 }
 
-class TopicList extends Component {
-  constructor(props) {
-    super(props);
-
-    // TODO: load topics from backend
-    this.state = {
-      error: null,
-      isLoaded: false,
-      topics: []
-      // topics: [
-      //   { name: 'Topic1', description: 'This is some sample description text that describes Topic1' },
-      //   { name: 'Topic2', description: 'This is some sample description text that describes Topic2' },
-      //   { name: 'Topic3', description: 'This is some sample description text that describes Topic3' },
-      // ]
-    }
-  }
-
-  componentDidMount() {
-    // let base64 = require('base-64');
-    let username = 'admin';
-    let password = 'qwedsa@123';
-
-    let headers = new Headers();
-
-    headers.append('Content-Type', 'application/json');
-    headers.append('Accept', 'application/json; indent=4');
-    headers.append('Authorization', 'Basic ' + btoa(username + ":" + password));
-    fetch("http://localhost:8000/topics/", { method: 'GET', headers: headers })
-      .then((response) => {
-        // console.log(response.json());
-        return response.json();
-      })
-      .then(
-        (result) => {
-          console.log(result);
-
-          this.setState({
-            isLoaded: true,
-            topics: result
-          });
-        },
-        (error) => {
-          this.setState({
-            isLoaded: true,
-            error
-          });
-        }
-      )
-  }
-
-  topicCards() {
-    const cards = this.state.topics.map((topic) => {
-      return (<TopicCard topic={topic} />);
-    });
-    return cards;
-  }
-
-  render() {
-    const { error, isLoaded, topics } = this.state;
-    if (error) {
-      return <div>Error: {error.message}</div>;
-    } else if (!isLoaded) {
-      return <div>Loading...</div>;
-    } else {
-      return (
-        <div className="container topic-list">
-          <div className="display-4">Topics</div>
-          {this.topicCards()}
-        </div>
-      );
-    }
-  }
-}
-
-class TopicCard extends Component {
-  constructor(props) {
-    super(props);
-
-    this.state = {
-      name: props.topic.name,
-      description: props.topic.description
-    }
-  }
-
-  render() {
-    return (
-      <div className="topic-list-topic card">
-        <div className="card-body">
-          <h3 className="card-title display-5">{this.state.name}</h3>
-          <p className="card-text">{this.state.description}</p>
-        </div>
-      </div>
-    );
-  }
-}
 
 export default App;
